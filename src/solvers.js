@@ -25,7 +25,7 @@ window.findNRooksSolution = function(n){
     }
   }
 
-  // console.log('Single solution for ' + n + ' rooks:', JSON.stringify(board._currentAttributes));
+  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(board._currentAttributes));
   return board._currentAttributes;
 };
 
@@ -33,95 +33,98 @@ window.findNRooksSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n){
-  console.log('n is ',n)
-  var solutions = {};
-  var initialTable = copyTable(findNRooksSolution(n));
-  // console.log('ini',initialTable)
-  solutions[initialTable] = true;
-  var x = copyTable(initialTable);
-  var xx = [ [0,1,0],[1,0,0],[0,0,1]]
-  // console.log('x',x);
-  // var y = horizFlip(x);
-  console.log('xx',JSON.stringify(xx));
-  console.log('1',JSON.stringify(horizFlip(xx)));
+  var availableCols = _.range(0,n);
+  var initialTable = new Board({n:n});
+  var board = copyTable(initialTable);
+  var solved = {};
 
-  var tempArr = horizFlip(x);
-  // console.log('2',JSON.stringify(x))
-  // console.log('3',JSON.stringify(tempArr))
-  var xx = horizFlip([ [] ])
-  solutions[tempArr] = true;
-  // tempArr = vertFlip(copyTable(initialTable));
-  // solutions[tempArr] = true;
-  // tempArr = diagFlip(copyTable(initialTable));
-  // solutions[tempArr] = true;
-  tempArr = shiftOne(copyTable(initialTable));
-  solutions[tempArr] = true;
+  var recur = function(modBoard, colsLeft, row){
+    if(colsLeft.length === 0){
+      solved[modBoard] = true;
+      return;
+    }
 
+    for(var i = 0; i<colsLeft.length; i++){
+      var arr = copyTable(modBoard);
+      var cols = colsLeft.slice(0);
 
+      arr[row][cols[i]] = 1;
+      cols.splice(i,1);
+      recur(arr,cols,row+1)
+    }
+  };
+  recur(board,availableCols,0);
 
-
-  console.log('Number of solutions for ' + n + ' rooks:', Object.keys(solutions).length);
-  
-  return Object.keys(solutions).length;
+  console.log('Number of solutions for ' + n + ' rooks:', Object.keys(solved).length);
+  return Object.keys(solved).length;
 };
 
 window.copyTable = function(oldTable){
   var newTable = [];
-  // console.log('copy1',oldTable)
   var tempArr = [];
   if(Array.isArray(oldTable)){
-    // debugger;
-    // console.log('xxxxx')
     for(var i = 0; i < oldTable.length; i++){
-      // console.log('oldtablei',oldTable[i].slice(0))
       newTable.push(oldTable[i].slice(0));
-      // console.log('newtablei',newTable)
-      // newTable.push(tempArr);
-      // tempArr = [];
-    }
-    // console.log(newTable)
-        
+    }        
   } else {
-    for(var keys in oldTable){
+    for(var keys in oldTable._currentAttributes){
       if(!isNaN(+keys)){
-        for(var k = 0; k < oldTable[keys].length; k++){
-          tempArr.push(oldTable[keys][k]);
+        for(var k = 0; k < oldTable._currentAttributes[keys].length; k++){
+          tempArr.push(oldTable._currentAttributes[keys][k]);
         }
         newTable.push(tempArr);
         tempArr = [];
       }
     }
   }
-  // console.log('copy2',newTable)
   return newTable;
 }
 
 window.horizFlip = function(oldTable){
   var newTable = [];
   var temp = [];
-  // console.log('old',JSON.stringify(oldTable))
-
   _.each(oldTable,function(arr){
     var m = arr.slice(0).reverse();
-    // console.log(arr.reverse())
     temp.push(m)
-    // console.log(JSON.stringify(temp))
   });
-  // console.log('temp',JSON.stringify(temp))
   return temp;
-  
 };
 
 window.vertFlip = function(oldTable){
-
+  var temp = copyTable(oldTable);
+  return temp.reverse();
 };
 
 window.diagFlip = function(oldTable){
-  // do horiz and then vert
+  var ret = horizFlip(oldTable);  
+  return vertFlip(ret);
 };
 
 window.shiftOne = function(oldTable){
-
+  var temp = copyTable(oldTable);
+  var newTable = [];
+  var row = [];
+  debugger;
+  console.log(JSON.stringify(oldTable));
+  for(var i = 0; i < temp.length; i++){
+    for(var j = 0; j < temp[i].length; j++){
+      if(temp[i][j] === 0){
+        row[j] = temp[i][j];
+      } else if (temp[i][j] === 1){
+        row[j] = 0
+        if(j+1 < temp[i].length){
+          row[j+1] = 1
+          j++;
+        } else {
+          row[0] = 1;
+        }
+      }
+      newTable.push(row);
+      row = [];
+    }
+  }
+  console.log(JSON.stringify(newTable));
+      
 };
 
 
@@ -136,8 +139,33 @@ window.findNQueensSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n){
-  var solutionCount = undefined; //fixme
+  // run rooks solutions but check for diagconflicts before adding to storage
+  var availableCols = _.range(0,n);
+  var initialTable = new Board({n:n});
+  var board = copyTable(initialTable);
+  var solved = {};
+  
+  var recur = function(modBoard, colsLeft, row){
+    if(colsLeft.length === 0){
+      var x = new Board(modBoard)
+      if(x.hasAnyMajorDiagonalConflicts() === false && x.hasAnyMinorDiagonalConflicts() === false){
+        solved[modBoard] = true;
+      }
+      return;
+    }
 
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+    for(var i = 0; i<colsLeft.length; i++){
+      var arr = copyTable(modBoard);
+      var cols = colsLeft.slice(0);
+
+      arr[row][cols[i]] = 1;
+      cols.splice(i,1);
+      recur(arr,cols,row+1)
+      
+    }
+  };
+  recur(board,availableCols,0);
+
+  console.log('Number of solutions for ' + n + ' queens:', Object.keys(solved).length);
+  return Object.keys(solved).length;
 };
