@@ -82,8 +82,9 @@ window.copyTable = function(oldTable){
 
 window.horizFlip = function(oldTable){
   var newTable = [];
+  var table = copyTable(oldTable)
   var temp = [];
-  _.each(oldTable,function(arr){
+  _.each(table,function(arr){
     var m = arr.slice(0).reverse();
     temp.push(m)
   });
@@ -139,7 +140,6 @@ window.findNQueensSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n){
-  // run rooks solutions but check for diagconflicts before adding to storage
   var availableCols = _.range(0,n);
   var initialTable = new Board({n:n});
   var board = copyTable(initialTable);
@@ -169,3 +169,55 @@ window.countNQueensSolutions = function(n){
   console.log('Number of solutions for ' + n + ' queens:', Object.keys(solved).length);
   return Object.keys(solved).length;
 };
+
+
+
+// window.countNQueensSolutions = function(n){
+//   var availableCols = _.range(0,n);
+//   var initialTable = new Board({n:n});
+//   var board = copyTable(initialTable);
+//   var solved = {};
+
+//   console.log('n',n)
+
+//   // place pieces in knight fashion
+//   var knights = function(table, row, col){
+//     table._currentAttributes[0][1] = 1;
+//     var newCol = col;
+//     var count = (n/2)-1;
+//     for(var i = 0; i<count; i++){
+//       newCol += 2;
+//       if(newCol >= n){
+//         newCol = newCol % n;
+//       }
+//       table._currentAttributes[row+i][newCol] = 1;
+//     }
+//   };
+//   console.log(JSON.stringify('a',initialTable));
+
+//   knights(initialTable, 1, 1);
+
+//   console.log(JSON.stringify('a',initialTable));
+
+//   // var x = copyTable(initialTable);
+
+//   var flipper = function(table){
+//     // takes top half, flips it onto bottom half, the horiz flips bottom half
+
+//     var n = table._currentAttributes['n'];
+//     var temp = vertFlip(table);
+//     temp = horizFlip(temp);
+
+//     for(var i = n/2; i < n; i++){
+//       table._currentAttributes[i] = temp[i];
+//     }
+
+//     return table;
+
+//   }
+  
+
+  
+//   console.log('Number of solutions for ' + n + ' queens:', Object.keys(solved).length);
+//   return Object.keys(solved).length;
+// };
