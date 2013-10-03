@@ -25,7 +25,7 @@ window.findNRooksSolution = function(n){
     }
   }
 
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(board._currentAttributes));
+  // console.log('Single solution for ' + n + ' rooks:', JSON.stringify(board._currentAttributes));
   return board._currentAttributes;
 };
 
@@ -33,17 +33,96 @@ window.findNRooksSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n){
-  if(n === 0) return 0;
-  var solutionCount = {};
-  debugger;
-  var initial = findNRooksSolution(n);
-  console.log('ini',initial)
+  console.log('n is ',n)
+  var solutions = {};
+  var initialTable = copyTable(findNRooksSolution(n));
+  // console.log('ini',initialTable)
+  solutions[initialTable] = true;
+  var x = copyTable(initialTable);
+  var xx = [ [0,1,0],[1,0,0],[0,0,1]]
+  // console.log('x',x);
+  // var y = horizFlip(x);
+  console.log('xx',JSON.stringify(xx));
+  console.log('1',JSON.stringify(horizFlip(xx)));
+
+  var tempArr = horizFlip(x);
+  // console.log('2',JSON.stringify(x))
+  // console.log('3',JSON.stringify(tempArr))
+  var xx = horizFlip([ [] ])
+  solutions[tempArr] = true;
+  // tempArr = vertFlip(copyTable(initialTable));
+  // solutions[tempArr] = true;
+  // tempArr = diagFlip(copyTable(initialTable));
+  // solutions[tempArr] = true;
+  tempArr = shiftOne(copyTable(initialTable));
+  solutions[tempArr] = true;
 
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return Object.keys(solutionCount).length;
+
+
+  console.log('Number of solutions for ' + n + ' rooks:', Object.keys(solutions).length);
+  
+  return Object.keys(solutions).length;
 };
 
+window.copyTable = function(oldTable){
+  var newTable = [];
+  // console.log('copy1',oldTable)
+  var tempArr = [];
+  if(Array.isArray(oldTable)){
+    // debugger;
+    // console.log('xxxxx')
+    for(var i = 0; i < oldTable.length; i++){
+      // console.log('oldtablei',oldTable[i].slice(0))
+      newTable.push(oldTable[i].slice(0));
+      // console.log('newtablei',newTable)
+      // newTable.push(tempArr);
+      // tempArr = [];
+    }
+    // console.log(newTable)
+        
+  } else {
+    for(var keys in oldTable){
+      if(!isNaN(+keys)){
+        for(var k = 0; k < oldTable[keys].length; k++){
+          tempArr.push(oldTable[keys][k]);
+        }
+        newTable.push(tempArr);
+        tempArr = [];
+      }
+    }
+  }
+  // console.log('copy2',newTable)
+  return newTable;
+}
+
+window.horizFlip = function(oldTable){
+  var newTable = [];
+  var temp = [];
+  // console.log('old',JSON.stringify(oldTable))
+
+  _.each(oldTable,function(arr){
+    var m = arr.slice(0).reverse();
+    // console.log(arr.reverse())
+    temp.push(m)
+    // console.log(JSON.stringify(temp))
+  });
+  // console.log('temp',JSON.stringify(temp))
+  return temp;
+  
+};
+
+window.vertFlip = function(oldTable){
+
+};
+
+window.diagFlip = function(oldTable){
+  // do horiz and then vert
+};
+
+window.shiftOne = function(oldTable){
+
+};
 
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
