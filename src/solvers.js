@@ -29,8 +29,6 @@ window.findNRooksSolution = function(n){
   return board._currentAttributes;
 };
 
-
-
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n){
   var availableCols = _.range(0,n);
@@ -101,44 +99,146 @@ window.diagFlip = function(oldTable){
   return vertFlip(ret);
 };
 
-window.shiftOne = function(oldTable){
-  var temp = copyTable(oldTable);
-  var newTable = [];
-  var row = [];
-  debugger;
-  console.log(JSON.stringify(oldTable));
-  for(var i = 0; i < temp.length; i++){
-    for(var j = 0; j < temp[i].length; j++){
-      if(temp[i][j] === 0){
-        row[j] = temp[i][j];
-      } else if (temp[i][j] === 1){
-        row[j] = 0
-        if(j+1 < temp[i].length){
-          row[j+1] = 1
-          j++;
-        } else {
-          row[0] = 1;
-        }
-      }
-      newTable.push(row);
-      row = [];
-    }
-  }
-  console.log(JSON.stringify(newTable));
+// non working
+// window.shiftOne = function(oldTable){
+//   var temp = copyTable(oldTable);
+//   var newTable = [];
+//   var row = [];
+//   console.log(JSON.stringify(oldTable));
+//   for(var i = 0; i < temp.length; i++){
+//     for(var j = 0; j < temp[i].length; j++){
+//       if(temp[i][j] === 0){
+//         row[j] = temp[i][j];
+//       } else if (temp[i][j] === 1){
+//         row[j] = 0
+//         if(j+1 < temp[i].length){
+//           row[j+1] = 1
+//           j++;
+//         } else {
+//           row[0] = 1;
+//         }
+//       }
+//       newTable.push(row);
+//       row = [];
+//     }
+//   }
+//   console.log(JSON.stringify(newTable));
       
-};
+// };
 
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n){
-  var solution = undefined; //fixme
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  var availableCols = _.range(0,n);
+  var board = new Board({n:n});
+  var solved = {};
+  var sol = [[]]
+  
+  var recur = function(inBoard, colsLeft, row){
+    if(colsLeft.length === 0){
+      sol = inBoard;
+      return;
+    }
+    for(var i = 0; i<colsLeft.length; i++){
+      var modBoard = copyTable(inBoard);  
+      var arr = modBoard[row];
+      var cols = colsLeft.slice(0);
+      arr[cols[i]] = 1;
+      var modBoard2 = new Board(modBoard);
+      if((!modBoard2.hasMajorDiagonalConflictAt(cols[i]-row)) && (!modBoard2.hasMinorDiagonalConflictAt(cols[i]+row))){
+        cols.splice(i,1);
+        recur(modBoard,cols,row+1);
+      } else {
+        arr[cols[i]] = 0;
+      }  
+    }
+  };
+
+  if(n === (0 || 1)) {
+    sol = [[1]]; 
+  } else {
+    recur(board,availableCols,0);  
+  }
+  
+  console.log('Single solution for ' + n + ' queens:', JSON.stringify(sol));
+  return sol;
+
+ 
 };
 
 
+  
+
+
+
+  // var solution = [];
+
+  // var initialTable = new Board({n:n});
+  
+  // var knights = function(table, row, col){
+  //   if(table._currentAttributes[0][1] === undefined){
+  //     table._currentAttributes[0][0] = 1;
+  //     return;
+  //   }
+  //   debugger;
+  //   table._currentAttributes[0][1] = 1;
+  //   var newCol = col;
+  //   for(var i = 0; i<n; i++){
+  //     newCol += 2;
+  //     if(newCol >= n){
+  //       newCol = newCol % n2;
+  //     }
+  //     table._currentAttributes[row+i][newCol] = 1;
+  //   }
+  // };
+
+  // knights(initialTable, 1, 1);
+
+  // solution = copyTable(initialTable);
+
+
+
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
+// ------------------------------------------------ WORKING QUICKLY BUT WRONG ------------------------------
+// window.countNQueensSolutions = function(n){
+//   var availableCols = _.range(0,n);
+//   var initialTable = new Board({n:n});
+//   var board = copyTable(initialTable);
+//   var solved = {};
+  
+//   var recur = function(modBoard, colsLeft, row){
+//     if(colsLeft.length < (modBoard[0].length / 2) && solved[tester] === undefined){
+//       var tester = diagFlip(modBoard);
+//       var x = new Board(tester)
+//       if(x.hasAnyQueensConflicts() === false){
+//         solved[tester] = true;
+      
+//       }
+//       return;
+//     }
+
+//     for(var i = 0; i<colsLeft.length; i++){
+//       var arr = copyTable(modBoard);
+//       var cols = colsLeft.slice(0);
+
+//       arr[row][cols[i]] = 1;
+//       cols.splice(i,1);
+//       if((row+1) < arr[0].length){
+//         recur(arr,cols,row+1)
+//       }
+      
+//     }
+//   };
+//   recur(board,availableCols,0);
+
+//   console.log('Number of solutions for ' + n + ' queens:', Object.keys(solved).length);
+//   return Object.keys(solved).length;
+// };
+
+
+// return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
+// ------------------------------------------------ WORKING SLOWLY------------------------------
 window.countNQueensSolutions = function(n){
   var availableCols = _.range(0,n);
   var initialTable = new Board({n:n});
@@ -171,7 +271,7 @@ window.countNQueensSolutions = function(n){
 };
 
 
-
+// ------------------------------NON WORKING NEW IDEAS------------------------------------------
 // window.countNQueensSolutions = function(n){
 //   var availableCols = _.range(0,n);
 //   var initialTable = new Board({n:n});
